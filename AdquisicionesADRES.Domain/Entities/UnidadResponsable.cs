@@ -9,13 +9,13 @@ namespace AdquisicionesADRES.Domain.Entities
     public class UnidadResponsable
     {
         [Key]
-        public int Id { get; private set; }
+        public int Id { get; set; }
         
         [Required, StringLength(80)]
-        public string Nombre { get; private set; }
+        public string Nombre { get;  set; }
 
 
-        private UnidadResponsable() { }
+        public UnidadResponsable() { }
 
         public UnidadResponsable(int id, string nombre)
         {

@@ -9,13 +9,13 @@ namespace AdquisicionesADRES.Domain.Entities
     public class TipoAdquisicion
     {
         [Key]
-        public int Id { get; private set; }
+        public int Id { get;  set; }
 
         [Required, StringLength(80)]
-        public string Nombre { get; private set; }
+        public string Nombre { get;  set; }
 
         // Constructor sin parámetros para EF
-        private TipoAdquisicion() { }
+        public TipoAdquisicion() { }
 
         public TipoAdquisicion(int id, string nombre)
         {

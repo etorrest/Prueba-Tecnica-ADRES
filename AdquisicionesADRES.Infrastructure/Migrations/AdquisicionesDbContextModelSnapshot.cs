@@ -92,6 +92,28 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EstadoAdquisicion", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Creada"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nombre = "En Ejecucion"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nombre = "Finalizada"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Nombre = "Cancelada"
+                        });
                 });
 
             modelBuilder.Entity("AdquisicionesADRES.Domain.Entities.Modulo", b =>
@@ -126,6 +148,35 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Modulo", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("64ac3033-266b-424a-99fa-1127b29828fe"),
+                            Descripcion = "Permite la consulta, adición y actualización de proveedores.",
+                            Enlace = "/proveedores",
+                            Icono = "proveedor.png",
+                            Orden = 2,
+                            Titulo = "PROVEEDORES"
+                        },
+                        new
+                        {
+                            Id = new Guid("965fb6a6-6ec6-4908-a130-5a85cda98d97"),
+                            Descripcion = "Permite la gestión integral de registro de solicitudes de adquisiciones",
+                            Enlace = "/adquisiciones",
+                            Icono = "mrecibir.png",
+                            Orden = 1,
+                            Titulo = "ADQUISICIONES"
+                        },
+                        new
+                        {
+                            Id = new Guid("91e8fa40-74be-4aac-b886-c463d86f9eea"),
+                            Descripcion = "Permite el mantenimiento de tablas de referencia (crear y modificar) ",
+                            Enlace = "/ajustes",
+                            Icono = "ajustes.png",
+                            Orden = 3,
+                            Titulo = "MANTENIMIENTO DE TABLAS"
+                        });
                 });
 
             modelBuilder.Entity("AdquisicionesADRES.Domain.Entities.Proveedor", b =>
@@ -149,6 +200,26 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Proveedor", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nit = "900500234-1",
+                            Nombre = "Laboratorios Bayer S.A."
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nit = "900495029-1",
+                            Nombre = "Laboratorio  Bioprocesos Colombia"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nit = "900395923-1",
+                            Nombre = "Dispensador MEDIMAX"
+                        });
                 });
 
             modelBuilder.Entity("AdquisicionesADRES.Domain.Entities.TipoAdquisicion", b =>
@@ -167,6 +238,23 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TipoAdquisicion", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Bienes"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nombre = "Servicios"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nombre = "Obras"
+                        });
                 });
 
             modelBuilder.Entity("AdquisicionesADRES.Domain.Entities.UnidadResponsable", b =>
@@ -185,6 +273,23 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UnidadResponsable", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Subdireccion Financiera"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nombre = "Dirección de Medicamentos y Tecnologías en Salud "
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nombre = "Subdireccion Administrativa"
+                        });
                 });
 
             modelBuilder.Entity("AdquisicionesADRES.Domain.Entities.Adquisicion", b =>

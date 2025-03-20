@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace AdquisicionesADRES.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -17,11 +19,27 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nombre = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EstadoAdquisicion", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Modulo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Titulo = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
+                    Icono = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Enlace = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
+                    Orden = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modulo", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -30,7 +48,8 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nit = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -43,7 +62,7 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nombre = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,7 +75,7 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nombre = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -69,7 +88,7 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TipoAdquisicionId = table.Column<int>(type: "int", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Cantidad = table.Column<int>(type: "int", nullable: false),
                     ValorUnitarios = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Presupuesto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -109,6 +128,57 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "EstadoAdquisicion",
+                columns: new[] { "Id", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, "Creada" },
+                    { 2, "En Ejecucion" },
+                    { 3, "Finalizada" },
+                    { 4, "Cancelada" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Modulo",
+                columns: new[] { "Id", "Descripcion", "Enlace", "Icono", "Orden", "Titulo" },
+                values: new object[,]
+                {
+                    { new Guid("64ac3033-266b-424a-99fa-1127b29828fe"), "Permite la consulta, adición y actualización de proveedores.", "/proveedores", "proveedor.png", 2, "PROVEEDORES" },
+                    { new Guid("91e8fa40-74be-4aac-b886-c463d86f9eea"), "Permite el mantenimiento de tablas de referencia (crear y modificar) ", "/ajustes", "ajustes.png", 3, "MANTENIMIENTO DE TABLAS" },
+                    { new Guid("965fb6a6-6ec6-4908-a130-5a85cda98d97"), "Permite la gestión integral de registro de solicitudes de adquisiciones", "/adquisiciones", "mrecibir.png", 1, "ADQUISICIONES" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Proveedor",
+                columns: new[] { "Id", "Nit", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, "900500234-1", "Laboratorios Bayer S.A." },
+                    { 2, "900495029-1", "Laboratorio  Bioprocesos Colombia" },
+                    { 3, "900395923-1", "Dispensador MEDIMAX" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TipoAdquisicion",
+                columns: new[] { "Id", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, "Bienes" },
+                    { 2, "Servicios" },
+                    { 3, "Obras" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UnidadResponsable",
+                columns: new[] { "Id", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, "Subdireccion Financiera" },
+                    { 2, "Dirección de Medicamentos y Tecnologías en Salud " },
+                    { 3, "Subdireccion Administrativa" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Adquisicion_EstadoAdquisicionId",
                 table: "Adquisicion",
@@ -135,6 +205,9 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Adquisicion");
+
+            migrationBuilder.DropTable(
+                name: "Modulo");
 
             migrationBuilder.DropTable(
                 name: "EstadoAdquisicion");

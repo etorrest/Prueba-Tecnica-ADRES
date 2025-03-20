@@ -52,24 +52,45 @@ namespace AdquisicionesADRES.Infrastructure.Data
             {
                 entity.ToTable("TipoAdquisicion");
                 entity.HasKey(t => t.Id);
+                entity.HasData(
+                    new TipoAdquisicion { Id = 1, Nombre = "Bienes" },
+                    new TipoAdquisicion { Id = 2, Nombre = "Servicios" },
+                    new TipoAdquisicion { Id = 3, Nombre = "Obras" }
+                );
             });
 
             modelBuilder.Entity<Proveedor>(entity =>
             {
                 entity.ToTable("Proveedor");
                 entity.HasKey(p => p.Id);
+                entity.HasData(
+                    new Proveedor { Id = 1, Nombre = "Laboratorios Bayer S.A.", Nit = "900500234-1" },
+                    new Proveedor { Id = 2, Nombre = "Laboratorio  Bioprocesos Colombia", Nit = "900495029-1"},
+                    new Proveedor { Id = 3, Nombre = "Dispensador MEDIMAX" , Nit = "900395923-1" }
+                );
             });
 
             modelBuilder.Entity<UnidadResponsable>(entity =>
             {
                 entity.ToTable("UnidadResponsable");
                 entity.HasKey(u => u.Id);
+                entity.HasData(
+                    new UnidadResponsable { Id = 1, Nombre = "Subdireccion Financiera" },
+                    new UnidadResponsable { Id = 2, Nombre = "Dirección de Medicamentos y Tecnologías en Salud " },
+                    new UnidadResponsable { Id = 3, Nombre = "Subdireccion Administrativa" }
+                );
             });
 
             modelBuilder.Entity<EstadoAdquisicion>(entity =>
             {
                 entity.ToTable("EstadoAdquisicion");
                 entity.HasKey(e => e.Id);
+                entity.HasData(
+                    new EstadoAdquisicion { Id = 1, Nombre = "Creada" },
+                    new EstadoAdquisicion { Id = 2, Nombre = "En Ejecucion" },
+                    new EstadoAdquisicion { Id = 3, Nombre = "Finalizada" },
+                    new EstadoAdquisicion { Id = 4, Nombre = "Cancelada" }
+                );
             });
 
 

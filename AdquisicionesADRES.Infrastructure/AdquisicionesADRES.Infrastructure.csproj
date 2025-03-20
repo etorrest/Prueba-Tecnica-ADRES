@@ -20,4 +20,8 @@
     <ProjectReference Include="..\AdquisicionesADRES.Domain\AdquisicionesADRES.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

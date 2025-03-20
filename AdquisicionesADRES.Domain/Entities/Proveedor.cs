@@ -8,15 +8,15 @@ namespace AdquisicionesADRES.Domain.Entities
     public class Proveedor
     {
         [Key]
-        public int Id { get; private set; }
+        public int Id { get;  set; }
 
         [StringLength(11), Required]
-        public string Nit { get; private set; }
+        public string Nit { get;  set; }
 
 
         [StringLength (100),Required]
-        public string Nombre { get; private set; }
-        private Proveedor() { }
+        public string Nombre { get;  set; }
+        public Proveedor() { }
 
         public Proveedor(int id, string nombre, string nit )
         {

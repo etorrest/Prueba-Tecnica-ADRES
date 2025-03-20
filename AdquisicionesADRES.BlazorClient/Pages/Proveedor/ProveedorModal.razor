@@ -1,0 +1,124 @@
+﻿
+@inject ProveedorApiClient ProveedorService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@if (_cargando)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    <MudDialog Class="border border-1 border-gray" TitleClass="text-primary" Title="@DialogTitle">
+        <DialogContent>
+            <MudForm @ref="form" Model="@Proveedor" IsValid="@_isValid" Validated="OnValidated">
+                <MudGrid Spacing="2">
+
+
+                    <MudItem xs="12" sm="4">
+                        <MudTextField T="string" Label="NIT" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                                      @bind-Value="@Proveedor.Nit"
+                                      Required="true" />
+                    </MudItem>
+
+                    
+                    <MudItem xs="12" sm="4">
+                        <MudTextField T="string" Label="Nombre" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                                      @bind-Value="@Proveedor.Nombre"
+                                      Required="true" />
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton Color="Color.Primary" OnClick="@GuardarAsync">Guardar</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="@Cancelar">Cancelar</MudButton>
+        </DialogActions>
+    </MudDialog>
+
+}
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public ProveedorDto Proveedor { get; set; } = new();
+    [Parameter] public EventCallback OnProveedorProcesado { get; set; }
+    [Parameter] public bool IsEdit { get; set; }
+    // Se puede asignar un título diferente dependiendo si es Crear o Editar
+    [Parameter] public string DialogTitle { get; set; } = "Nuevo proveedor";
+
+    private bool _cargando = false;
+
+
+    private MudForm form;
+    private bool _isValid;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    private async Task CrearSolicitud()
+    {
+        // Validar el formulario
+        await form.Validate();
+        if (!form.IsValid)
+            return;
+
+        // Crear o Editar
+        if (IsEdit)
+        {
+            // Actualizar
+            await ProveedorService.UpdateAsync(Proveedor.Id, Proveedor);
+        }
+        else
+        {
+            // Crear nuevo
+            var creado = await ProveedorService.CreateAsync(Proveedor);
+            // Asignar el nuevo Id devuelto
+            if (creado != null)
+                Proveedor.Id = creado.Id;
+        }
+
+        // Cerrar el modal con éxito
+        MudDialog.Close(DialogResult.Ok(Proveedor));
+    }
+
+
+    private async Task GuardarAsync()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                if (IsEdit)
+                {
+                    // Actualizar
+                    await ProveedorService.UpdateAsync(Proveedor.Id, Proveedor);
+                    Snackbar.Add("Proveedor editado exitosamente.", Severity.Success);
+                }
+                else
+                {
+
+                    await ProveedorService.CreateAsync(Proveedor);
+                    Snackbar.Add("Proveedor creado exitosamente.", Severity.Success);
+                }
+                await OnProveedorProcesado.InvokeAsync(null);
+                MudDialog.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error al guardar prveeedor: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private void Cancelar()
+    {
+        MudDialog.Cancel();
+    }
+}

@@ -1,0 +1,183 @@
+﻿@page "/proveedores"
+
+@inject ProveedorApiClient ProveedorService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h6" Color="Color.Primary" Class="p-3" Align="Align.Center"><b>Gestión de proveedores</b></MudText>
+@if (proveedores == null)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="m-auto d-block" />
+}
+
+<MudStack Wrap="Wrap.NoWrap" Row Justify="Justify.SpaceBetween" Class="pb-3">
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary"><b>Listado de proveedores</b></MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Variant="Variant.Outlined" OnClick="OpenCreateDialog">
+        Nuevo proveedor
+    </MudButton>
+</MudStack>
+
+<div class="bg-light p-2 mb-2 rounded-3">
+
+
+    <!-- Panel de Búsqueda/Filtrado -->
+    @if (proveedores.Any())
+    {
+        <MudTable Items="@proveedores" Hover="true"
+        Bordered="true"
+        Striped="true"
+        Dense="true"
+        Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>NIT</MudTh>
+                <MudTh>Nombre</MudTh>
+                <MudTh>Acciones</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Id">@context.Id</MudTd>
+                <MudTd DataLabel="NIT">@context.Nit</MudTd>
+                <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+                <MudTd>
+                    <MudButton Color="Color.Primary" Size="Size.Small" OnClick="@(() => OpenEditDialog(context))">
+                        <MudIcon Icon="@Icons.Material.Filled.Edit" />
+                    </MudButton>
+                    <MudButton Color="Color.Error" Size="Size.Small" OnClick="@(() => ConfirmDelete(context))" Class="ml-2">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" />
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+    else
+    {
+        <MudText Typo="Typo.h6" Color="Color.Info" Class="text-center mt-4">No hay proveerdores registrados.</MudText>
+    }
+</div>
+
+
+@code {
+    private List<ProveedorDto> proveedores = new();
+    private bool cargando = true;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProveedores();
+    }
+
+    private async Task CargarProveedores()
+    {
+        try
+        {
+            cargando = true;
+            var lista = await ProveedorService.GetAllAsync();
+            if (lista != null)
+                proveedores = lista;
+            
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al cargar adquisiciones: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            cargando = false;
+        }
+
+    }
+
+
+    private async Task OnProveedorProcesado()
+    {
+        await CargarProveedores();
+    }
+    // Abre el modal para crear una nueva adquisición
+    private void OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+            {
+                ["OnProveedorProcesado"] = EventCallback.Factory.Create(this, OnProveedorProcesado),
+                ["Proveedor"] = new ProveedorDto(),
+                ["IsEdit"] = false
+            };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+        var dialog = DialogService.Show<ProveedorModal>("Nuevo proveedor", parameters, options);
+        dialog.Result.ContinueWith(async (result) =>
+        {
+            if (!result.Result.Canceled)
+            {
+                // Si el diálogo se cerró con éxito, recargamos la lista
+                await CargarProveedores();
+                StateHasChanged();
+            }
+        });
+    }
+
+    // Abre el modal para editar una adquisición existente
+    private void OpenEditDialog(ProveedorDto proveedor)
+    {
+        var parameters = new DialogParameters
+            {
+            // Enviamos el objeto seleccionado para editar
+                ["Proveedor"] = proveedor,
+                ["IsEdit"] = true
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+        var dialog = DialogService.Show<ProveedorModal>("Editar proveedor", parameters, options);
+        dialog.Result.ContinueWith(async (result) =>
+        {
+            if (!result.Result.Canceled)
+            {
+                await CargarProveedores();
+                StateHasChanged();
+            }
+        });
+    }
+
+    // Muestra una confirmación antes de eliminar
+    private async Task ConfirmDelete(ProveedorDto proveedor)
+    {
+        bool confirmacion = await MostrarConfirmacion($"¿Estás seguro de eliminar el proveedor: {proveedor.Nombre}?");
+
+        if (confirmacion)
+        {
+            try
+            {
+                var exito = await ProveedorService.DeleteAsync(proveedor.Id);
+                if (exito)
+                {
+                    Snackbar.Add("Proveedor eliminado exitosamente", Severity.Success);
+                    await CargarProveedores();
+                }
+                else
+                {
+                    Snackbar.Add("No se pudo eliminar el proveedor", Severity.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    // Método auxiliar para mostrar un simple diálogo de confirmación
+    private async Task<bool> MostrarConfirmacion(string mensaje)
+    {
+        var parameters = new DialogParameters
+            {
+                ["ContentText"] = mensaje,
+                ["ButtonText"] = "Eliminar",
+                ["Color"] = Color.Error
+            };
+        var options = new DialogOptions { CloseButton = true };
+        var dialog = DialogService.Show<ConfirmDialog>("Confirmar", parameters, options);
+        var result = await dialog.Result;
+        return !result.Canceled;
+    }
+}

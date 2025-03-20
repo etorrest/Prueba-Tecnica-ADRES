@@ -1,0 +1,5 @@
+﻿Add-Migration InitialCreate -StartupProject AdquisicionesADRES.API -Project AdquisicionesADRES.Infrastructure
+
+Update-Database -StartupProject AdquisicionesADRES.API -Project AdquisicionesADRES.Infrastructure
+
+

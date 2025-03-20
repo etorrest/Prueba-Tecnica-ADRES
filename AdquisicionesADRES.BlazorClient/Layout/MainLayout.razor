@@ -1,0 +1,163 @@
+﻿@using Blazored.LocalStorage;
+@inherits LayoutComponentBase
+
+@inject ILocalStorageService _localStorage
+@* @inject BreadcrumbsService BreadcrumbsService *@
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="currentTheme = _isDarkMode ? _DarkTheme : _LightTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudLayout>
+    <MudAppBar Color="Color.Surface">
+
+        <MudLink Href="/modulos">
+            <MudImage Src="/img/logo1.png" Height="50"></MudImage>
+        </MudLink>
+        <MudSpacer />
+        <MudSwitch T="bool" @bind-Value="_isDarkMode" CheckedChanged="@(OnCheckedChanged(_isDarkMode))" Color="Color.Primary" />
+        <div class="d-flex">
+
+            <MudButton Color="Color.Tertiary" Variant="Variant.Filled" OnClick="MostrarConfirmacionCerrarSesion">
+                Cerrar Sesión
+            </MudButton>
+        </div>
+    </MudAppBar>
+
+
+    <MudAppBar Color="Color.Surface">
+        <MudImage Width="120" Src="/img/logoGovCo.svg"></MudImage>
+        <MudSpacer />
+
+        <MudLink Href="/">
+            <MudImage Src="/img/titulo.png" Height="50"></MudImage>
+        </MudLink>
+        <MudSpacer />
+        <MudImage Width="100" Src="/img/adres.jpg"></MudImage>
+
+    </MudAppBar>
+
+
+    <MudMainContent>
+        <MudPaper Elevation="25">
+            <MudToolBar Class="justify-space-between">
+
+                <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Primary" Class="mr-5" />
+                <MudStack Row Spacing="3" AlignItems="AlignItems.Center">
+
+                    <MudLink Color="Color.Primary" Underline="Underline.None" Class="mr-5" Href="/adquisiciones"><b>ADQUISICIONES</b></MudLink>
+                    <MudLink Color="Color.Primary" Underline="Underline.None" Class="mr-5" Href="/proveedores"><b>PROVEEDORES</b></MudLink>
+                    <MudLink Color="Color.Primary" Underline="Underline.None" Class="mr-5" Href="#" Disabled="true"><b>CONFIGURACIÓN</b></MudLink>
+                </MudStack>
+
+                <MudSpacer />
+                <MudSwitch T="bool" @bind-Value="_isDarkMode" CheckedChanged="@(OnCheckedChanged(_isDarkMode))" Color="Color.Secondary" />
+                <MudButton Color="Color.Tertiary" Variant="Variant.Filled" OnClick="MostrarConfirmacionCerrarSesion">
+                    Cerrar Sesión
+                </MudButton>
+            </MudToolBar>
+        </MudPaper>
+        <article class="content px-4 pb-4 mb-10">
+            @Body
+        </article>
+    </MudMainContent>
+    <MudAppBar Dense="true" Bottom="true" Fixed="true" Color="Color.Surface">
+        <MudSpacer />
+        <MudText Align="Align.Center" Color="Color.Surface">Administradora de los Recursos del Sistema General de Seguridad Social en Salud</MudText>
+        <MudSpacer />
+        <MudText Align="Align.Center" Color="Color.Surface">Versión 1.0</MudText>
+    </MudAppBar>
+</MudLayout>
+
+
+@code {
+
+
+    private MudTheme? currentTheme;  // Tema actual
+
+    private bool _isDarkMode;  // Valor que se vincula al switch
+
+    public bool _open;
+
+    // Definimos el tema claro
+    private static readonly MudTheme _LightTheme = new()
+        {
+            PaletteLight = new PaletteLight
+            {
+                AppbarBackground = "#3366CC",
+                Primary = Colors.Blue.Darken4,
+                Secondary = Colors.Teal.Darken1,
+                Tertiary = Colors.Indigo.Darken4,
+                DarkLighten = "#5068b1",
+
+            }
+        };
+
+    // Definimos el tema oscuro
+    private static readonly MudTheme _DarkTheme = new()
+        {
+            PaletteDark = new PaletteDark
+            {
+                Primary = Colors.Cyan.Default,
+                Secondary = Colors.Teal.Lighten1,
+                Tertiary = Colors.Indigo.Darken3,
+                Background = "#121212",
+                Surface = "#1E1E1E",
+                TableStriped = Colors.Gray.Darken4,
+            }
+        };
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isDarkMode = await _localStorage.GetItemAsync<bool>("isDarkMode");
+        currentTheme = _isDarkMode ? _DarkTheme : _LightTheme;
+    }
+
+
+    public async ValueTask OnCheckedChanged(bool isChecked)
+    {
+        await _localStorage.SetItemAsync("isDarkMode", _isDarkMode);
+    }
+
+    private async Task MostrarConfirmacionCerrarSesion()
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Cerrar Sesión",
+            "¿Estás seguro de que deseas cerrar tu sesión?",
+            yesText: "Sí", noText: "No");
+
+        if (result == true)
+        {
+            await CerrarSesion();
+        }
+    }
+
+    private async Task CerrarSesion()
+    {
+        try
+        {
+            await _localStorage.RemoveItemAsync("isDarkMode");
+            NavigationManager.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cerrar sesión: {ex.Message}");
+            // Puedes mostrar un snackbar si lo deseas
+            Snackbar.Add("Ocurrió un error al cerrar la sesión.", Severity.Error);
+        }
+    }
+
+
+
+    public void ToggleOpen()
+    {
+        if (_open)
+            _open = false;
+        else
+            _open = true;
+    }
+}

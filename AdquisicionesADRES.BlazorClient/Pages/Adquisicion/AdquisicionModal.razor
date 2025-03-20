@@ -1,0 +1,223 @@
+﻿@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using AdquisicionesADRES.BlazorClient.Models 
+@inject AdquisicionApiClient AdquisicionService
+@inject ProveedorApiClient ProveedorService
+@inject TipoAdquisicionApiClient TipoService
+@inject UnidadResponsableApiClient UnidadService
+@inject EstadoAdquisicionApiClient EstadoService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@if (_cargando)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}else
+{
+    <MudDialog Class="border border-1 border-gray" TitleClass="text-primary" Title="@DialogTitle">
+        <DialogContent>
+            <MudForm @ref="form" Model="@Adquisicion" IsValid="@_isValid" Validated="OnValidated">
+                <MudGrid Spacing="2">
+                    <!-- Columna 1: Tipo de Adquisición -->
+                    <MudItem xs="12" sm="4">
+                        <MudSelect T="int" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        Label="Tipo Adquisición"
+                        @bind-Value="@Adquisicion.TipoAdquisicionId"
+                        Required="true">
+
+                            <MudSelectItem Value="@(0)">Selecione el tipo de adquisición</MudSelectItem>
+                            @foreach (var tipo in _tipos)
+                            {
+                                <MudSelectItem Value="@tipo.Id">@tipo.Nombre</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+
+                    <!-- Columna 2: Descripción -->
+                    <MudItem xs="12" sm="4">
+                        <MudTextField T="string" Label="Descripción" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.Descripcion"
+                        Required="true" />
+                    </MudItem>
+
+                    <!-- Columna 3: Proveedor -->
+                    <MudItem xs="12" sm="4">
+                        <MudSelect T="int" Label="Proveedor" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.ProveedorId"
+                        Required="true">
+                            @foreach (var p in _proveedores)
+                            {
+                                <MudSelectItem Value="@p.Id">@p.Nombre</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <!-- Columna 1: Unidad Responsable  -->
+                    <MudItem xs="12" sm="4">
+                        <MudSelect T="int" Label="Unidad Responsable" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.UnidadResponsableId"
+                        Required="true">
+                            @foreach (var u in _unidades)
+                            {
+                                <MudSelectItem Value="@u.Id">@u.Nombre</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+
+
+                    <!-- Columna 2: Cantidad -->
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="int" Label="Cantidad" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.Cantidad"
+                        Required="true" />
+                    </MudItem>
+
+                    <!-- Columna 3: Valor Unitario -->
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="decimal" Label="Valor Unitario" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.ValorUnitarios"
+                        Required="true" />
+                    </MudItem>
+
+                    <!-- Columna 1: Presupuesto -->
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="decimal" Label="Presupuesto" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.Presupuesto" />
+                    </MudItem>
+
+                    <!-- Columna 2: Fecha Adquisición -->
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker Label="Fecha Adquisición" Margin="Margin.Dense" Variant="Variant.Outlined" 
+                        @bind-Date="@Adquisicion.FechaAdquisicion"
+                        Required="true" />
+                    </MudItem>
+
+                    <!-- Columna 3: Estado -->
+                    <MudItem xs="12" sm="4">
+                        <MudSelect T="int" Label="Estado" Margin="Margin.Dense" Variant="Variant.Outlined" FullWidth="true" Typo="Typo.body2"
+                        @bind-Value="@Adquisicion.EstadoAdquisicionId"
+                        Required="true">
+                            @foreach (var e in _estados)
+                            {
+                                <MudSelectItem Value="@e.Id">@e.Nombre</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton Color="Color.Primary" OnClick="@GuardarAsync">Guardar</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="@Cancelar">Cancelar</MudButton>
+        </DialogActions>
+    </MudDialog>
+
+}
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public AdquisicionDto Adquisicion { get; set; } = new();
+    [Parameter] public EventCallback OnAdquisicionCreada { get; set; }
+    [Parameter] public bool IsEdit { get; set; }
+    // Se puede asignar un título diferente dependiendo si es Crear o Editar
+    [Parameter] public string DialogTitle { get; set; } = "Nueva solicitud de adquisición";
+
+    private bool _cargando = false;
+
+    // Catálogos
+    private List<ProveedorDto> _proveedores = new();
+    private List<TipoAdquisicionDto> _tipos = new();
+    private List<UnidadResponsableDto> _unidades = new();
+    private List<EstadoAdquisicionDto> _estados = new();
+
+
+    private MudForm form;
+    private bool _isValid;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Cargar catálogos
+        _cargando = true;
+        try
+        {
+            _proveedores = await ProveedorService.GetAllAsync() ?? new();
+            _tipos = await TipoService.GetAllAsync() ?? new();
+            _unidades = await UnidadService.GetAllAsync() ?? new();
+            _estados = await EstadoService.GetAllAsync() ?? new();
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores si deseas
+        }
+        finally
+        {
+            _cargando = false;
+        }
+    }
+
+    private async Task CrearSolicitud()
+    {
+        // Validar el formulario
+        await form.Validate();
+        if (!form.IsValid)
+            return;
+
+        // Crear o Editar
+        if (IsEdit)
+        {
+            // Actualizar
+            await AdquisicionService.UpdateAsync(Adquisicion.Id, Adquisicion);
+        }
+        else
+        {
+            // Crear nuevo
+            var creado = await AdquisicionService.CreateAsync(Adquisicion);
+            // Asignar el nuevo Id devuelto
+            if (creado != null)
+                Adquisicion.Id = creado.Id;
+        }
+
+        // Cerrar el modal con éxito
+        MudDialog.Close(DialogResult.Ok(Adquisicion));
+    }
+
+
+    private async Task GuardarAsync()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                if (IsEdit)
+                {
+                    // Actualizar
+                    await AdquisicionService.UpdateAsync(Adquisicion.Id, Adquisicion);
+                    Snackbar.Add("Soliciud de adquisición editada exitosamente.", Severity.Success);
+                }
+                else
+                {
+
+                    await AdquisicionService.CreateAsync(Adquisicion);
+                    Snackbar.Add("Soliciud de adquisición creada exitosamente.", Severity.Success);
+                }
+                    await OnAdquisicionCreada.InvokeAsync(null);
+                    MudDialog.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error al guardar la solicitud: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private void Cancelar()
+    {
+        MudDialog.Cancel();
+    }
+}

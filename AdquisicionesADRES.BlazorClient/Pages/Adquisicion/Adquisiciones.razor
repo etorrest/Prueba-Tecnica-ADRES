@@ -1,0 +1,315 @@
+﻿@page "/adquisiciones"
+
+@inject AdquisicionApiClient AdquisicionService
+
+@inject ProveedorApiClient ProveedorService
+@inject TipoAdquisicionApiClient TipoService
+@inject UnidadResponsableApiClient UnidadService
+@inject EstadoAdquisicionApiClient EstadoService
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h6" Color="Color.Primary" Class="p-3" Align="Align.Center"><b>Gestión de solicitudes de adquisiciones</b></MudText>
+@if (listAdquisiciones == null)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="m-auto d-block" />
+}
+
+
+<MudStack Wrap="Wrap.NoWrap" Row Justify="Justify.SpaceBetween" Class="pb-3">
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary"><b>Listado de solicitudes de adquisiciones</b></MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Variant="Variant.Outlined" OnClick="OpenCreateDialog">
+        Nueva solicitud
+    </MudButton>
+</MudStack>
+
+<div class="bg-light p-2 mb-2 rounded-3">
+    <MudExpansionPanels Expanded="false" Class="mb-4">
+        <MudExpansionPanel Text="Búsqueda Avanzada" HeaderClass="dense" Expanded="false" Dense Gutters Class="compact-panel mb-1">
+
+            <MudStack Row="true" Spacing="2" Class="pb-2" AlignItems="AlignItems.Center">
+                <MudTextField T="string" Typo="Typo.subtitle2" Margin="Margin.Dense" Variant="Variant.Outlined" Label="Descripción" @bind-Value="filtroDescripcion" />
+                <MudTextField T="string" Typo="Typo.subtitle2" Margin="Margin.Dense" Variant="Variant.Outlined" Label="Proveedor" @bind-Value="filtroProveedor" />
+                <MudTextField T="string" Typo="Typo.subtitle2" Margin="Margin.Dense" Variant="Variant.Outlined" Label="Unidad responsable" @bind-Value="filtroResponsable" />
+
+                <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" OnClick="FiltrarAdquisiciones">
+                    Buscar
+                </MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="LimpiarFiltros">
+                    Limpiar
+                </MudButton>
+            </MudStack>
+
+        </MudExpansionPanel>
+
+    </MudExpansionPanels>
+
+    @if (listAdquisiciones.Any())
+    {
+
+        <MudTable Items="@listAdquisiciones" Loading="isLoadingData" Bordered="true" Striped="true" Hover="true">
+            <HeaderContent>
+
+                <MudTh>Tipo</MudTh>
+                <MudTh>Descripción</MudTh>
+                <MudTh>Proveedor</MudTh>
+                <MudTh>Unidad Responsable</MudTh>
+                <MudTh>Cantidad</MudTh>
+                <MudTh>Valor Unitario</MudTh>
+                <MudTh>Valor Total</MudTh>
+                <MudTh>Estado Solicitud</MudTh>
+                <MudTh>Acciones</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd Class="p-2">@context.TipoAdquisicion?.Nombre</MudTd>
+                <MudTd Class="p-2">@context.Descripcion</MudTd>
+                <MudTd Class="p-2">@context.Proveedor?.Nombre</MudTd>
+                <MudTd Class="p-2">@context.UnidadResponsable?.Nombre</MudTd>
+                <MudTd Class="p-2">@context.Cantidad</MudTd>
+                <MudTd Class="p-2">@context.ValorUnitarios</MudTd>
+                <MudTd Class="p-2">@context.ValorTotal()</MudTd>
+                <MudTd Class="p-2">@context.EstadoAdquisicion?.Nombre</MudTd>
+
+                <MudTd Class="text-center">
+                    <MudButton Color="Color.Primary" Size="Size.Small" OnClick="@(() => OpenEditDialog(context))">
+                        <MudIcon Icon="@Icons.Material.Filled.Edit" />
+                    </MudButton>
+                    <MudButton Color="Color.Error" Size="Size.Small" OnClick="@(() => ConfirmDelete(context))" Class="ml-2">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" />
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Descripcion))">Historial</MudButton>
+
+                </MudTd>
+            </RowTemplate>
+
+            <ChildRowContent>
+                @if (context.ShowDetails)
+                {
+                    <MudTr>
+                        <td colspan="11" class="p-3">
+                            <MudCard Elevation="5" Class="bg-gradient p-2 border border-1 border-secondary">
+
+                                <MudCardContent Class="p-2">
+                                    <MudStack Row Spacing="2" Class="mb-1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline">
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"> <strong>Historial</strong></MudText>
+                                        <MudButton Variant="Variant.Text" Size="Size.Small" Color="Color.Info" OnClick="@(() => ToggleDetails(context))">Cerrar</MudButton>
+                                    </MudStack>
+
+                                    
+                                    <!-- Lista de errores de validación -->
+                                    <MudTable Items="@context.HistoricoResults" Context="HisContext" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                        <HeaderContent>
+                                            <MudTh>Decripción</MudTh>
+                                            <MudTh>Fecha Adquisición</MudTh>
+                                            <MudTh>Fecha Creación</MudTh>
+                                            <MudTh>Fecha Modificación</MudTh>
+                                        </HeaderContent>
+                                        <RowTemplate>
+                                            <MudTd>@HisContext.Descripcion</MudTd>
+                                            <MudTd>@HisContext.FechaAdquisicion</MudTd>
+                                            <MudTd>@HisContext.FechaCreacion</MudTd>
+                                            <MudTd>@HisContext.FechaModificacion</MudTd>
+                                        </RowTemplate>
+                                    </MudTable> 
+                                </MudCardContent>
+                            </MudCard>
+                        </td>
+                    </MudTr>
+                }
+            </ChildRowContent>
+        </MudTable>
+    }
+    else
+    {
+        <MudText Typo="Typo.h6" Color="Color.Info" Class="text-center mt-4">No hay solicitudes de adquisiciones registradas.</MudText>
+    }
+</div>
+
+
+@code {
+    // Lista que mostrará en la tabla
+    private List<AdquisicionDto> listAdquisiciones = new();
+    private bool cargando = false;
+    private bool isLoadingData = false;
+
+    // Campos para el filtro
+    private string filtroDescripcion;
+    private string filtroProveedor;
+    private string filtroResponsable;
+
+    private async Task ShowBtnPress(string nr)
+    {
+        AdquisicionDto tmpAdqisicion = listAdquisiciones.First(f => f.Descripcion == nr);
+        var historico = await AdquisicionService.GetByIdAsync(tmpAdqisicion.Id);
+        if(historico !=null)
+            tmpAdqisicion.HistoricoResults.Add(historico);
+
+        tmpAdqisicion.ShowDetails = !tmpAdqisicion.ShowDetails;
+    }
+    private void ToggleDetails(AdquisicionDto context)
+    {
+        context.ShowDetails = !context.ShowDetails;
+        StateHasChanged();
+    }
+
+
+    private async Task FiltrarAdquisiciones()
+    {
+        try
+        {
+            isLoadingData = true;
+
+            var lst_adquisiciones = await AdquisicionService.GetAllAsync();
+            var query = lst_adquisiciones.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filtroDescripcion))
+            {
+                query = query.Where(p => p.Descripcion.Contains(filtroDescripcion, StringComparison.OrdinalIgnoreCase));
+            }
+            if (!string.IsNullOrWhiteSpace(filtroProveedor))
+            {
+                query = query.Where(p => p.Proveedor.Nombre.Contains(filtroProveedor, StringComparison.OrdinalIgnoreCase));
+            }
+            if (!string.IsNullOrWhiteSpace(filtroResponsable))
+            {
+                query = query.Where(p => p.UnidadResponsable.Nombre.Contains(filtroResponsable,StringComparison.OrdinalIgnoreCase));
+            }
+
+            listAdquisiciones = query.ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al filtrar pacientes: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoadingData = false;
+        }
+    }
+
+    private async Task LimpiarFiltros()
+    {
+        filtroDescripcion = string.Empty;
+        filtroProveedor = string.Empty;
+        filtroResponsable = string.Empty;
+
+        await CargarAdquisiciones();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarAdquisiciones();
+    }
+
+    private async Task CargarAdquisiciones()
+    {
+        try
+        {
+            cargando = true;
+            // Llama al servicio que consume la API y obtiene las adquisiciones
+            var resultado = await AdquisicionService.GetAllAsync();
+            if (resultado != null)
+                listAdquisiciones = resultado;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al cargar adquisiciones: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task OnAdquisicionCreada()
+    {
+        await CargarAdquisiciones();
+    }
+
+    // Abre el modal para crear una nueva adquisición
+    private void OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+            {
+                ["OnAdquisicionCreada"] = EventCallback.Factory.Create(this, OnAdquisicionCreada),
+                ["Adquisicion"] = new AdquisicionDto(),
+                ["IsEdit"] = false
+            };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true };
+
+        var dialog = DialogService.Show<AdquisicionModal>("Nueva solicitud Adquisición", parameters, options);
+        dialog.Result.ContinueWith(async (result) =>
+        {
+            if (!result.Result.Canceled)
+            {
+                // Si el diálogo se cerró con éxito, recargamos la lista
+                await CargarAdquisiciones();
+                StateHasChanged();
+            }
+        });
+    }
+
+    // Abre el modal para editar una adquisición existente
+    private void OpenEditDialog(AdquisicionDto adquisicion)
+    {
+        var parameters = new DialogParameters
+            {
+            // Enviamos el objeto seleccionado para editar
+                ["Adquisicion"] = adquisicion,
+                ["IsEdit"] = true
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true };
+
+        var dialog = DialogService.Show<AdquisicionModal>("Editar Adquisición", parameters, options);
+        dialog.Result.ContinueWith(async (result) =>
+        {
+            if (!result.Result.Canceled)
+            {
+                await CargarAdquisiciones();
+                StateHasChanged();
+            }
+        });
+    }
+
+    // Muestra una confirmación antes de eliminar
+    private async Task ConfirmDelete(AdquisicionDto adquisicion)
+    {
+        bool confirmacion = await MostrarConfirmacion($"¿Estás seguro de eliminar la adquisición: {adquisicion.Descripcion}?");
+
+        if (confirmacion)
+        {
+            try
+            {
+                var exito = await AdquisicionService.DeleteAsync(adquisicion.Id);
+                if (exito)
+                {
+                    Snackbar.Add("Solicitud de adquisición eliminada exitosamente", Severity.Success);
+                    await CargarAdquisiciones();
+                }
+                else
+                {
+                    Snackbar.Add("No se pudo eliminar la solicitud de adquisición", Severity.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    // Método auxiliar para mostrar un simple diálogo de confirmación
+    private async Task<bool> MostrarConfirmacion(string mensaje)
+    {
+        var parameters = new DialogParameters { 
+            ["ContentText"] = mensaje ,
+                ["ButtonText"]= "Eliminar",
+                ["Color"]= Color.Error
+        };
+        var options = new DialogOptions { CloseButton = true };
+        var dialog = DialogService.Show<ConfirmDialog>("Confirmar", parameters, options);
+        var result = await dialog.Result;
+        return !result.Canceled;
+    }
+}

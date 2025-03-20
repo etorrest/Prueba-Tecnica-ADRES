@@ -1,0 +1,71 @@
+﻿@page "/"
+@using AdquisicionesADRES.BlazorClient.Pages.Modulo
+
+@inject ModuloApiClient _moduloApiClient
+
+<PageTitle>Adquisiciones</PageTitle>
+
+
+
+
+@if (IsLoading)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="mt-5" />
+    <MudText Typo="Typo.subtitle2" Class="mt-3">Cargando módulos, por favor espere...</MudText>
+}
+else
+{
+
+    <MudStack Row Class="p-2">
+        <MudText Color="Color.Primary" Typo="Typo.h4"><b>¡Bienvenido!</b></MudText>
+        <MudSpacer></MudSpacer>
+        <MudImage Width="120" Src="/img/logo-adres.png"></MudImage>
+
+    </MudStack>
+
+    <MudCard Elevation="6" Class="mx-auto max-w-4xl">
+        <!-- Header de la Card -->
+        <MudCardHeader Class="card-header-custom dense">
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6" Class="text-white" >
+                    <b>Utiliza las siguientes opciones para navegar por las distintas secciones de la aplicación.</b>
+                </MudText>
+            </CardHeaderContent>
+
+        </MudCardHeader>
+        <!-- Contenido de la Card -->
+        <div class="row p-3">
+            @foreach (var item in ListModules)
+            {
+                <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 col-xxl-3 pb-3">
+                    <ModuloCard ItemModulo="item" />
+                </div>
+            }
+        </div>
+    </MudCard>
+}
+
+
+
+@code {
+    IList<ModuloDto> ListModules = new List<ModuloDto>();
+
+    public string? Mensaje { get; set; }
+    bool IsLoading = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            ListModules = await _moduloApiClient.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            Mensaje = $"Error al cargar los módulos: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

@@ -12,7 +12,7 @@ namespace AdquisicionesADRES.Infrastructure.Data
         public DbSet<Proveedor> Proveedores { get; set; } = null!;
         public DbSet<UnidadResponsable> UnidadesResponsables { get; set; } = null!;
         public DbSet<EstadoAdquisicion> EstadosAdquisicion { get; set; } = null!;
-        public DbSet<Modulo> Modulo{ get; set; } = null!;
+        public DbSet<Modulo> Modulo { get; set; } = null!;
 
         public AdquisicionesDbContext(DbContextOptions<AdquisicionesDbContext> options)
             : base(options)
@@ -78,6 +78,37 @@ namespace AdquisicionesADRES.Infrastructure.Data
                 entity.ToTable("Modulo");
                 entity.HasKey(m => m.Id);
             });
+
+            modelBuilder.Entity<Modulo>().HasData(
+            new Modulo
+            {
+                // Asigna un GUID fijo para evitar conflictos en múltiples migraciones
+                Id = Guid.Parse("64AC3033-266B-424A-99FA-1127B29828FE"),
+                Titulo = "PROVEEDORES",
+                Descripcion = "Permite la consulta, adición y actualización de proveedores.",
+                Icono = "proveedor.png",
+                Enlace = "/proveedores",
+                Orden = 2
+            },
+            new Modulo
+            {
+                Id = Guid.Parse("965FB6A6-6EC6-4908-A130-5A85CDA98D97"),
+                Titulo = "ADQUISICIONES",
+                Descripcion = "Permite la gestión integral de registro de solicitudes de adquisiciones",
+                Icono = "mrecibir.png",
+                Enlace = "/adquisiciones",
+                Orden = 1
+            },
+            new Modulo
+            {
+                Id = Guid.Parse("91E8FA40-74BE-4AAC-B886-C463D86F9EEA"),
+                Titulo = "MANTENIMIENTO DE TABLAS",
+                Descripcion = "Permite el mantenimiento de tablas de referencia (crear y modificar) ",
+                Icono = "ajustes.png",
+                Enlace = "/ajustes",
+                Orden = 3
+            }
+             );
         }
     }
 }

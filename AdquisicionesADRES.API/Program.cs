@@ -1,5 +1,7 @@
 using AdquisicionesADRES.Application;
 using AdquisicionesADRES.Infrastructure;
+using AdquisicionesADRES.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AdquisicionesDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseCors("AllowBlazorClient");
 

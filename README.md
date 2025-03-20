@@ -95,10 +95,15 @@ Si la solución utiliza migraciones de Entity Framework y prefieres que EF cree 
 1. Asegúrate de que la cadena de conexión (ConnectionStrings:DefaultConnection) en appsettings.json de AdquisicionesADRES.API apunte a tu instancia de SQL Server. Por ejemplo:
 
 {
+
   "ConnectionStrings": {
+  
     "DefaultConnection": "Server=MI_SERVIDOR\\SQLEXPRESS;Database=AdquisicionesADRESDB;Trusted_Connection=True;"
+  
   }
+
 }
+
 
 2. Abre la Consola del Administrador de Paquetes en Visual Studio (Tools > NuGet Package Manager > Package Manager Console) o usa la terminal con dotnet:
 

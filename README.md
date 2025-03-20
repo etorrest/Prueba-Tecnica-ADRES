@@ -71,15 +71,21 @@ AdquisicionesADRES.sln
 
 │  └─ wwwroot
 
+
+
 Configuración de la Base de Datos
+
 
 La aplicación requiere una base de datos denominada, por ejemplo, AdquisicionesADRESDB. Puedes crearla de dos maneras:
 
 Opción A: Script SQL
 
 Localiza el archivo de script SQL (p. ej. CreateDatabase.sql) en la carpeta Scripts o en la raíz del repositorio.
+
 Ábrelo en tu SQL Server Management Studio (SSMS) o herramienta similar.
+
 Modifica el nombre de la base de datos si fuera necesario (por defecto, AdquisicionesADRESDB).
+
 Ejecuta el script para crear la base de datos y las tablas requeridas.
 
 Opción B: Migraciones de Entity Framework
@@ -97,20 +103,26 @@ Si la solución utiliza migraciones de Entity Framework y prefieres que EF cree 
 2. Abre la Consola del Administrador de Paquetes en Visual Studio (Tools > NuGet Package Manager > Package Manager Console) o usa la terminal con dotnet:
 
 cd AdquisicionesADRES.Infrastructure
+
 dotnet ef database update --startup-project ../AdquisicionesADRES.API
+
 
 Esto aplicará las migraciones y creará la base de datos con las tablas definidas en el proyecto de infraestructura.
 
+
 Configuración y Ejecución del Proyecto
+
 
 1. Clona el repositorio (o descárgalo como ZIP)
     git clone https://github.com/tu-usuario/AdquisicionesADRES.git
    
 Luego abre la solución en Visual Studio con el archivo AdquisicionesADRES.sln.
 
+
 2. Verifica la cadena de conexión
 
 En AdquisicionesADRES.API/appsettings.json, revisa el DefaultConnection para que apunte a la instancia de SQL Server que creaste.
+
 
 3. Compila la solución
 
@@ -120,19 +132,25 @@ En AdquisicionesADRES.API/appsettings.json, revisa el DefaultConnection para que
     dotnet build AdquisicionesADRES.sln
 
 
+
 4. Crea la base de datos (si no lo has hecho ya)
 
   Usando el script SQL o las migraciones de EF, como se explicó arriba.
 
+
 5. Ejecuta la API
 
   Ejecuta AdquisicionesADRES.API como proyecto de inicio (Set as Startup Project).
+
   Visual Studio abrirá automáticamente una ventana de navegador con la API en https://localhost:5001 o similar.
+  
   También podrás ver Swagger si está configurado, p. ej. en https://localhost:5001/swagger.
+
 
 6. Ejecuta la aplicación Blazor (Cliente)
 
 Si tienes un proyecto separado para el Cliente, asegúrate de que tenga su propia configuración en Visual Studio o lánzalo con:
+
   dotnet run --project AdquisicionesADRES.Client
   
 Esto abrirá la aplicación en el navegador, apuntando a la API en https://localhost:5001 (o la ruta que corresponda).

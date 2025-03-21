@@ -164,7 +164,7 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                             Id = new Guid("965fb6a6-6ec6-4908-a130-5a85cda98d97"),
                             Descripcion = "Permite la gestión integral de registro de solicitudes de adquisiciones",
                             Enlace = "/adquisiciones",
-                            Icono = "mrecibir.png",
+                            Icono = "recibir.png",
                             Orden = 1,
                             Titulo = "ADQUISICIONES"
                         },

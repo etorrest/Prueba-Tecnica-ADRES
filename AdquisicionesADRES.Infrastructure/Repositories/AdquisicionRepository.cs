@@ -42,7 +42,7 @@ namespace AdquisicionesADRES.Infrastructure.Repositories
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        // READ ALL (Método faltante)
+        // READ ALL 
         public async Task<List<Adquisicion>> GetAllAsync()
         {
             return await _context.Adquisiciones

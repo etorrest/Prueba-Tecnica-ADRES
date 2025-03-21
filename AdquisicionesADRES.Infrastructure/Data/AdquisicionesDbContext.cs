@@ -116,7 +116,7 @@ namespace AdquisicionesADRES.Infrastructure.Data
                 Id = Guid.Parse("965FB6A6-6EC6-4908-A130-5A85CDA98D97"),
                 Titulo = "ADQUISICIONES",
                 Descripcion = "Permite la gestión integral de registro de solicitudes de adquisiciones",
-                Icono = "mrecibir.png",
+                Icono = "recibir.png",
                 Enlace = "/adquisiciones",
                 Orden = 1
             },

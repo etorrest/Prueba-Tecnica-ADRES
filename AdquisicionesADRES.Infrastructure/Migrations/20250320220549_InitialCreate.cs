@@ -146,7 +146,7 @@ namespace AdquisicionesADRES.Infrastructure.Migrations
                 {
                     { new Guid("64ac3033-266b-424a-99fa-1127b29828fe"), "Permite la consulta, adición y actualización de proveedores.", "/proveedores", "proveedor.png", 2, "PROVEEDORES" },
                     { new Guid("91e8fa40-74be-4aac-b886-c463d86f9eea"), "Permite el mantenimiento de tablas de referencia (crear y modificar) ", "/ajustes", "ajustes.png", 3, "MANTENIMIENTO DE TABLAS" },
-                    { new Guid("965fb6a6-6ec6-4908-a130-5a85cda98d97"), "Permite la gestión integral de registro de solicitudes de adquisiciones", "/adquisiciones", "mrecibir.png", 1, "ADQUISICIONES" }
+                    { new Guid("965fb6a6-6ec6-4908-a130-5a85cda98d97"), "Permite la gestión integral de registro de solicitudes de adquisiciones", "/adquisiciones", "recibir.png", 1, "ADQUISICIONES" }
                 });
 
             migrationBuilder.InsertData(
